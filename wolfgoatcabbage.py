@@ -41,7 +41,6 @@ class WolfGoatCabbage(Problem):
         return valid 
 
 
- 
 if __name__ == '__main__':
     wgc = WolfGoatCabbage()
     solution = depth_first_graph_search(wgc).solution()

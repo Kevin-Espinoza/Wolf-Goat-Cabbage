@@ -60,6 +60,15 @@ class WolfGoatCabbage(Problem):
             valid.add('G')
         else:
             valid.add('F')
+
+        self.initial=set(self.initial)
+
+        if(valid.issubset(self.initial)):
+            self.initial=self.initial-valid
+        else:
+            self.initial.union(valid)
+
+        self.initial=tuple(self.initial)
         # Revert state back to tuple
         # state=tuple(state)
 

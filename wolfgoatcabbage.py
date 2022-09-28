@@ -6,94 +6,90 @@ from search import *
 
 
 class WolfGoatCabbage(Problem):
-    def __init__(self, initial={'F','G','W','C'}, goal=('F','G','W','C')):
-        self.initial = tuple(initial)
-        self.goal = goal
+    def __init__(self, initial=('F','G','W','C'), goal=()):
+        self.initial = frozenset(initial)
+        self.goal = frozenset(goal)
+        # super().__init__(self.initial, self.goal)
 
     def goal_test(self, state):
-        # return True if set(state)==set(self.goal) else False
-        if set(state)==set(self.goal) and 'F' not in self.initial:
-            print("FINAL STATE", state)
+        # print('\nGOAL TEST - STATE: ', state)
+        # print('GOAL STATE: ', self.goal)
+        if state==set(self.goal):
             return True
         else:
-            False
+            return False
+
+    # This is a helper function that checks if the farmer is in the current state
+    def farmer(self, state):
+        if('F' in state):
+            return True
+        else:
+            return False
 
     def result(self, state, action):
-        state=set(state)
-        if('F' in state):
+        state = set(state)
+        action = set(action)
+        # print('\nSTATE: ', state)
+        # print('ACTION: ', action)
+
+        test = self.farmer(state)
+        if(test and action.issubset(state)):
+            state = state-action
+            # state.remove('F')
+            # print('NEW STATE: ', state)
+        elif(action.issubset(state)):
+            # state.add('F')
+            state.remove(action)
+            # print('NEW STATE: ', state)
+        elif(test):
             state.remove('F')
+            # print('NEW STATE: ', state)
         else:
+            state.union(action)
             state.add('F')
+            # print('NEW STATE: ', state)
+            
+        return frozenset(state)
 
-        if(action != 'F'):
-            if(action in state):
-                state.remove(action)
-            else:
-                state.add(action)
-
-        return tuple(state)
 
     def actions(self, state):
-        # Make a temp state for easy manipulation
+        # print('ACTIONS')
+        # print('\n')
         state_temp=set(state)
-        # print("\nSTATE", state)
+        # print("INITIAL is:", self.initial)
+        print('STATE: ', state)
 
-        valid = set()
-        if state_temp == {'F','G','W','C'}:
-            valid.add('F')
-            valid.add('G')
-        elif state_temp == {'F', 'G', 'W'}:
-            valid.add('F')
-            valid.add('W')
+        possible_actions = [{'F'}, {'G','F'}, {'W','F'}, {'C','F'}]
+        if state_temp == {'F', 'G', 'W', 'C'}:
+            possible_actions = [{'G','F'}]
         elif state_temp == {'F', 'C', 'W'}:
-            valid.add('F')
-            valid.add('C')
-        elif state_temp == {'F', 'G', 'C'}:
-            valid.add('F')
-            valid.add('C')
+            possible_actions = [{'W','F'}]
+        elif state_temp == {'F', 'G', 'W'}:
+            possible_actions = [{'W','F'}]
+        elif state_temp == {'W', 'C'}:
+            possible_actions = [{'F'}, {'G','F'}]
+        elif state_temp == {'W', 'G'}:
+            possible_actions = [{'F'}, {'C','F'}]
         elif state_temp == {'F', 'G'}:
-            valid.add('F')
-            valid.add('C')
-            valid.add('G')
+            possible_actions = [{'G','F'},]
+        elif state_temp == {'F', 'C'}:
+            possible_actions = [{'F'}, {'C','F'}] 
+        elif state_temp == {'F', 'W'}:
+            possible_actions = [{'F'}, {'W','F'}]
         elif state_temp == {'W'}:
-            valid.add('F')
-            valid.add('G')
-        else:
-            valid.add('F')
-
-        self.initial=set(self.initial)
-
-        if(valid.issubset(self.initial)):
-            self.initial=self.initial-valid
-        else:
-            self.initial.union(valid)
-
-        self.initial=tuple(self.initial)
-        # Revert state back to tuple
-        # state=tuple(state)
-
-        # Override state_temp to be a copy of the object's initial state as a set
-        # print("LHS", self.initial)
-        # init_temp=set(self.initial)
-        # print("VALID", valid)
-        # print("INIT_TEMP", init_temp)
-        # print(valid.issubset(init_temp))
-        # if set(state) == init_temp and valid.issubset(init_temp):
-        #     init_temp = tuple(init_temp-valid)
-        #     print("LHS is now", init_temp)
-        # elif set(state) == init_temp:
-        #     init_temp = tuple(init_temp.union(valid))
-        #     print("LHS is now ", init_temp)
-        # else:
-        #     pass
-
-        # self.initial=init_temp
-        return list(valid) 
+            possible_actions = [{'F'}]
+        elif state_temp == {'G'}:
+            possible_actions = [{'F'}, {'W','F'}, {'C','F'}]
+        elif state_temp == {'C'}:
+            possible_actions = [{'G','F'}]
+        elif state_temp == {'F'}:
+            possible_actions = [{'F'}]
+        return possible_actions
 
 
 if __name__ == '__main__':
     wgc = WolfGoatCabbage()
-    solution = depth_first_graph_search(wgc)
+    solution = depth_first_graph_search(wgc).solution()
     print(solution)
     solution = breadth_first_graph_search(wgc).solution()
     print(solution)
